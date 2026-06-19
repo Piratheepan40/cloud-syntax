@@ -40,7 +40,7 @@ interface InventoryTableProps {
   onEdit: (product: Product) => void;
   onDelete: (productId: string) => void;
   onAddNew: () => void;
-  onUpdateStock: (productId: string, quantity: number, action: 'INCREASE' | 'DECREASE') => void;
+  onUpdateStock: (product: Product, action: 'INCREASE' | 'DECREASE') => void;
   onSelectedChange: (keys: React.Key[]) => void;
   onBulkDelete?: (ids: string[]) => void;
   onBulkRestock?: (ids: string[], quantity: number) => void;
@@ -153,7 +153,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
             type="text"
             size={isMobile ? 'small' : 'middle'}
             icon={<ArrowDownOutlined style={{ fontSize: '16px' }} />}
-            onClick={() => onUpdateStock(record.id, 1, 'DECREASE')}
+            onClick={() => onUpdateStock(record, 'DECREASE')}
             danger
             style={{ padding: '4px 8px' }}
           />
@@ -163,7 +163,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
             type="primary"
             size={isMobile ? 'small' : 'middle'}
             icon={<ArrowUpOutlined style={{ fontSize: '16px' }} />}
-            onClick={() => onUpdateStock(record.id, 1, 'INCREASE')}
+            onClick={() => onUpdateStock(record, 'INCREASE')}
             style={{ padding: '4px 8px' }}
           />
         </Tooltip>

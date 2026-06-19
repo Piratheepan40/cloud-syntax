@@ -8,3 +8,5 @@ export { Dashboard } from './Dashboard';
 export { CategoryManagementModal } from './CategoryManagementModal';
 export { StockHistoryModal } from './StockHistoryModal';
 export { Sidebar } from './Sidebar';
+export { StockAdjustmentModal } from './StockAdjustmentModal';
+

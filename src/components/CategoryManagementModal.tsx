@@ -1,11 +1,13 @@
 /**
  * CategoryManagementModal Component
- * Handles category creation and management
+ * Handles category creation and management with Formik + Yup validation
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal, Form, Input, Button, Table, Popconfirm, Space, Empty, Divider } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Formik, FormikHelpers } from 'formik';
+import * as Yup from 'yup';
 import type { ColumnsType } from 'antd/es/table';
 import { Category } from '../types';
 
@@ -18,6 +20,23 @@ interface CategoryManagementModalProps {
   loading?: boolean;
 }
 
+interface FormValues {
+  name: string;
+  description: string;
+}
+
+// Yup Validation Schema
+const categoryValidationSchema = Yup.object().shape({
+  name: Yup.string()
+    .trim()
+    .required('Category name is required')
+    .min(2, 'Category name must be at least 2 characters')
+    .max(50, 'Category name must not exceed 50 characters'),
+  description: Yup.string()
+    .trim()
+    .max(200, 'Description must not exceed 200 characters'),
+});
+
 export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
   visible,
   categories,
@@ -26,21 +45,19 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
   onDeleteCategory,
   loading = false,
 }) => {
-  const [form] = Form.useForm();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (values: { name: string; description: string }) => {
-    setIsSubmitting(true);
-    try {
-      onAddCategory(values.name, values.description);
-      form.resetFields();
-    } finally {
-      setIsSubmitting(false);
-    }
+  const initialValues: FormValues = {
+    name: '',
+    description: '',
   };
 
-  const defaultCategories = categories.filter((c) => c.name !== 'Default');
-  const customCategories = categories.filter((c) => c.name === 'Default' || !c.name.startsWith('__'));
+  const handleSubmit = (
+    values: FormValues,
+    { setSubmitting, resetForm }: FormikHelpers<FormValues>
+  ) => {
+    onAddCategory(values.name, values.description);
+    resetForm();
+    setSubmitting(false);
+  };
 
   const columns: ColumnsType<Category> = [
     {
@@ -66,10 +83,10 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
       key: 'actions',
       render: (_, record) => (
         <Space>
-          {record.name !== 'Default' && (
+          {record.id !== 'default' && (
             <Popconfirm
               title="Delete Category"
-              description="Are you sure? Products in this category will be moved to Default."
+              description="Are you sure? Products in this category will be moved to General."
               onConfirm={() => onDeleteCategory(record.id)}
               okText="Delete"
               cancelText="Cancel"
@@ -92,38 +109,69 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
     >
       <div style={{ marginTop: '20px' }}>
         {/* Add New Category Form */}
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item
-            label="Category Name"
-            name="name"
-            rules={[
-              { required: true, message: 'Category name is required' },
-              { min: 2, message: 'Category name must be at least 2 characters' },
-            ]}
-          >
-            <Input placeholder="Enter category name" maxLength={50} />
-          </Form.Item>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={categoryValidationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit: formikSubmit,
+            isSubmitting,
+          }) => (
+            <Form layout="vertical" onFinish={formikSubmit}>
+              <Form.Item
+                label="Category Name"
+                validateStatus={touched.name && errors.name ? 'error' : ''}
+                help={touched.name && errors.name ? errors.name : ''}
+                required
+              >
+                <Input
+                  name="name"
+                  placeholder="Enter category name"
+                  value={values.name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  disabled={loading || isSubmitting}
+                  maxLength={50}
+                />
+              </Form.Item>
 
-          <Form.Item label="Description" name="description">
-            <Input.TextArea
-              placeholder="Optional category description"
-              rows={2}
-              maxLength={200}
-            />
-          </Form.Item>
+              <Form.Item
+                label="Description"
+                validateStatus={touched.description && errors.description ? 'error' : ''}
+                help={touched.description && errors.description ? errors.description : ''}
+              >
+                <Input.TextArea
+                  name="description"
+                  placeholder="Optional category description"
+                  value={values.description}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  rows={2}
+                  disabled={loading || isSubmitting}
+                  maxLength={200}
+                />
+              </Form.Item>
 
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<PlusOutlined />}
-              loading={isSubmitting || loading}
-              block
-            >
-              Add New Category
-            </Button>
-          </Form.Item>
-        </Form>
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  icon={<PlusOutlined />}
+                  loading={loading || isSubmitting}
+                  block
+                >
+                  Add New Category
+                </Button>
+              </Form.Item>
+            </Form>
+          )}
+        </Formik>
 
         <Divider />
 

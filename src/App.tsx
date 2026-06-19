@@ -15,6 +15,7 @@ import {
   CategoryManagementModal,
   StockHistoryModal,
   Sidebar,
+  StockAdjustmentModal,
 } from './components';
 import { useInventory } from './hooks';
 import { Product } from './types';
@@ -38,6 +39,9 @@ export const App: React.FC = () => {
   const [stockHistoryVisible, setStockHistoryVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [stockAdjustmentVisible, setStockAdjustmentVisible] = useState(false);
+  const [adjustingProduct, setAdjustingProduct] = useState<Product | null>(null);
+  const [adjustingAction, setAdjustingAction] = useState<'INCREASE' | 'DECREASE'>('INCREASE');
 
   // Inventory hook
   const {
@@ -125,12 +129,24 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateStock = (
-    productId: string,
-    quantity: number,
+    product: Product,
     action: 'INCREASE' | 'DECREASE'
   ) => {
-    updateStock(productId, quantity, action, undefined);
-    message.success(`Stock ${action.toLowerCase()}d successfully!`);
+    setAdjustingProduct(product);
+    setAdjustingAction(action);
+    setStockAdjustmentVisible(true);
+  };
+
+  const handleSubmitStockAdjustment = (
+    productId: string,
+    quantity: number,
+    action: 'INCREASE' | 'DECREASE',
+    notes?: string
+  ) => {
+    updateStock(productId, quantity, action, notes);
+    message.success(`Stock updated successfully!`);
+    setStockAdjustmentVisible(false);
+    setAdjustingProduct(null);
   };
 
   const handleBulkDelete = (ids: string[]) => {
@@ -320,6 +336,17 @@ export const App: React.FC = () => {
           stockHistory={stockHistory}
           products={productMap}
           onClose={() => setStockHistoryVisible(false)}
+        />
+
+        <StockAdjustmentModal
+          visible={stockAdjustmentVisible}
+          product={adjustingProduct}
+          initialAction={adjustingAction}
+          onClose={() => {
+            setStockAdjustmentVisible(false);
+            setAdjustingProduct(null);
+          }}
+          onSubmit={handleSubmitStockAdjustment}
         />
       </Layout>
     </ConfigProvider>
