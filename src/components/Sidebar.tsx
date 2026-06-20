@@ -1,30 +1,4 @@
-/**
- * Sidebar Navigation Component
- * Premium navigation with category management and history
- */
-
-import React, { useState } from 'react';
-import {
-  Layout,
-  Menu,
-  Button,
-  Drawer,
-  Badge,
-  Divider,
-  Space,
-  Tag,
-  Tooltip,
-} from 'antd';
-import {
-  LayoutOutlined,
-  BarcodeOutlined,
-  BgColorsOutlined,
-  SettingOutlined,
-  HistoryOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  FileTextOutlined,
-} from '@ant-design/icons';
+import React from 'react';
 
 interface SidebarProps {
   activeTab: 'dashboard' | 'inventory';
@@ -35,6 +9,8 @@ interface SidebarProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
   isMobile: boolean;
+  sidebarOpen: boolean;
+  onSidebarClose: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -46,244 +22,115 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isDarkMode,
   onToggleDarkMode,
   isMobile,
+  sidebarOpen,
+  onSidebarClose,
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
   const menuItems = [
-    {
-      key: 'dashboard',
-      icon: <span style={{ fontSize: '18px' }}>📊</span>,
-      label: 'Dashboard',
-      onClick: () => {
-        onTabChange('dashboard');
-        setDrawerOpen(false);
-      },
-    },
-    {
-      key: 'inventory',
-      icon: <span style={{ fontSize: '18px' }}>📦</span>,
-      label: 'Inventory',
-      onClick: () => {
-        onTabChange('inventory');
-        setDrawerOpen(false);
-      },
-    },
+    { id: 'dashboard', label: 'Dashboard', icon: '📊', tab: 'dashboard' as const },
+    { id: 'inventory', label: 'Inventory', icon: '📦', tab: 'inventory' as const },
   ];
 
   const actionItems = [
-    {
-      key: 'history',
-      icon: null,
-      label: '📊 Stock History',
-      badge: stockHistoryCount,
-      onClick: () => {
-        onViewHistory();
-        setDrawerOpen(false);
-      },
-    },
-    {
-      key: 'categories',
-      icon: null,
-      label: '🏷️ Manage Categories',
-      onClick: () => {
-        onManageCategories();
-        setDrawerOpen(false);
-      },
-    },
+    { id: 'history', label: 'Stock History', icon: '📋', count: stockHistoryCount, action: onViewHistory },
+    { id: 'categories', label: 'Manage Categories', icon: '🏷️', action: onManageCategories },
   ];
 
-  const sidebarContent = (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        padding: isMobile ? '0' : '0',
-      }}
-    >
-      {/* Main Navigation */}
-      <Menu
-        theme={isDarkMode ? 'dark' : 'light'}
-        mode="vertical"
-        selectedKeys={[activeTab]}
-        items={menuItems}
-        style={{
-          flex: 1,
-          border: 'none',
-          backgroundColor: isDarkMode ? '#141414' : '#fff',
-        }}
-      />
-
-      <Divider
-        style={{
-          margin: isMobile ? '12px 0' : '8px 0',
-          backgroundColor: isDarkMode ? '#434343' : '#f0f0f0',
-        }}
-      />
-
-      {/* Action Items Section */}
-      <div
-        style={{
-          padding: isMobile ? '16px' : '12px 0',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: isMobile ? '12px' : '8px',
-        }}
-      >
+  return (
+    <>
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
         <div
-          style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            color: isDarkMode ? '#999' : '#666',
-            paddingLeft: isMobile ? '0' : '16px',
-            paddingRight: isMobile ? '0' : '16px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-          }}
-        >
-          Tools
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onSidebarClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`${
+          isMobile
+            ? `fixed left-0 top-16 h-[calc(100vh-64px)] w-64 z-40 transform transition-transform duration-300 ${
+                sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              }`
+            : 'w-64 sticky top-16 h-[calc(100vh-64px)]'
+        } bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 shadow-sm flex flex-col`}
+      >
+        {/* Menu Section */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-6">
+            {/* Navigation Menu */}
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-3">
+                Navigation
+              </h3>
+              <div className="space-y-1">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onTabChange(item.tab);
+                      isMobile && onSidebarClose();
+                    }}
+                    className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-3 ${
+                      activeTab === item.tab
+                        ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                    }`}
+                  >
+                    <span className="text-lg">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions Section */}
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-3">
+                Tools & Settings
+              </h3>
+              <div className="space-y-1">
+                {actionItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      item.action();
+                      isMobile && onSidebarClose();
+                    }}
+                    className="w-full text-left px-4 py-2.5 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-200 flex items-center justify-between"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="text-lg">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </span>
+                    {item.count !== undefined && item.count > 0 && (
+                      <span className="px-2 py-0.5 bg-indigo-500 text-white text-xs rounded-full font-bold">
+                        {item.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {actionItems.map((item) => (
-          <Button
-            key={item.key}
-            type="text"
-            onClick={item.onClick}
-            style={{
-              width: '100%',
-              textAlign: 'left',
-              height: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              color: isDarkMode ? '#fff' : '#000',
-              borderRadius: '6px',
-              transition: 'all 0.3s ease',
-              backgroundColor: isDarkMode ? 'transparent' : 'transparent',
-              paddingLeft: isMobile ? '16px' : '16px',
-              paddingRight: isMobile ? '16px' : '16px',
-              fontSize: '14px',
-              fontWeight: '500',
-            }}
-            onMouseEnter={(e) => {
-              if (!isMobile) {
-                e.currentTarget.style.backgroundColor = isDarkMode
-                  ? '#262626'
-                  : '#f0f0f0';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isMobile) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
-            }}
+        {/* Divider */}
+        <div className="border-t border-slate-200 dark:border-slate-700" />
+
+        {/* Footer - Theme Toggle */}
+        <div className="p-4">
+          <button
+            onClick={onToggleDarkMode}
+            className="w-full px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-sm hover:shadow"
           >
-            <span style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px' }}>
-              {item.label}
-            </span>
-            {item.badge && item.badge > 0 && (
-              <Badge count={item.badge} showZero={false} color="#ff7875" />
-            )}
-          </Button>
-        ))}
-      </div>
-
-      <Divider
-        style={{
-          margin: isMobile ? '12px 0' : '8px 0',
-          backgroundColor: isDarkMode ? '#434343' : '#f0f0f0',
-        }}
-      />
-
-      {/* Theme Toggle */}
-      <div style={{ padding: isMobile ? '16px' : '12px 16px' }}>
-        <Button
-          type="primary"
-          onClick={onToggleDarkMode}
-          style={{
-            width: '100%',
-            height: '44px',
-            borderRadius: '6px',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            fontSize: '15px',
-          }}
-        >
-          <span>{isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}</span>
-        </Button>
-      </div>
-    </div>
-  );
-
-  if (isMobile) {
-    return (
-      <>
-        <Button
-          type="text"
-          icon={drawerOpen ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          onClick={() => setDrawerOpen(!drawerOpen)}
-          style={{
-            fontSize: '18px',
-            width: '40px',
-            height: '40px',
-          }}
-        />
-
-        <Drawer
-          title="Navigation"
-          placement="left"
-          onClose={() => setDrawerOpen(false)}
-          open={drawerOpen}
-          width={280}
-          bodyStyle={{
-            padding: '0',
-            backgroundColor: isDarkMode ? '#141414' : '#fff',
-          }}
-          headerStyle={{
-            backgroundColor: isDarkMode ? '#1f1f1f' : '#fff',
-            borderBottom: `1px solid ${isDarkMode ? '#434343' : '#f0f0f0'}`,
-          }}
-        >
-          {sidebarContent}
-        </Drawer>
-      </>
-    );
-  }
-
-  return (
-    <Layout.Sider
-      width={260}
-      collapsible
-      collapsed={collapsed}
-      onCollapse={setCollapsed}
-      style={{
-        backgroundColor: isDarkMode ? '#141414' : '#fff',
-        borderRight: `1px solid ${isDarkMode ? '#434343' : '#f0f0f0'}`,
-        overflowY: 'auto',
-        height: 'calc(100vh - 64px)',
-        position: 'fixed',
-        left: 0,
-        top: 64,
-        bottom: 0,
-      }}
-      trigger={
-        <Button
-          type="text"
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          style={{
-            position: 'absolute',
-            right: '-40px',
-            top: '20px',
-            zIndex: 100,
-          }}
-        />
-      }
-    >
-      {sidebarContent}
-    </Layout.Sider>
+            <span className="text-lg">{isDarkMode ? '☀️' : '🌙'}</span>
+            <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
+
+export default Sidebar;
