@@ -332,7 +332,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                 {paginatedProducts.length > 0 ? (
-                  paginatedProducts.map((p) => {
+                  paginatedProducts.map((p, index) => {
                     const isSelected = selectedRowKeys.includes(p.id);
                     const isLowStock = p.stock < 10 && p.stock > 0;
                     const isOutStock = p.stock === 0;
@@ -340,9 +340,10 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                     return (
                       <tr
                         key={p.id}
-                        className={`hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors text-sm ${
+                        className={`hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors text-sm animate-fade-in-up ${
                           isSelected ? 'bg-indigo-50/20 dark:bg-indigo-900/10' : ''
                         }`}
+                        style={{ animationDelay: `${index * 50}ms`, opacity: 0, animationFillMode: 'forwards' }}
                       >
                         <td className="px-4 py-3 text-left">
                           <input
@@ -464,7 +465,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {paginatedProducts.length > 0 ? (
-              paginatedProducts.map((p) => {
+              paginatedProducts.map((p, index) => {
                 const isSelected = selectedRowKeys.includes(p.id);
                 const isLowStock = p.stock < 10 && p.stock > 0;
                 const isOutStock = p.stock === 0;
@@ -472,11 +473,12 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                 return (
                   <div
                     key={p.id}
-                    className={`relative rounded-xl border p-4 bg-white dark:bg-slate-800 transition-all duration-300 ${
+                    className={`relative rounded-xl border p-4 bg-white dark:bg-slate-800 transition-all duration-300 animate-fade-in-up transform hover:-translate-y-1 ${
                       isSelected
                         ? 'border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
-                        : 'border-slate-200 dark:border-slate-700 hover:shadow-md'
+                        : 'border-slate-200 dark:border-slate-700 hover:shadow-lg'
                     }`}
+                    style={{ animationDelay: `${index * 100}ms`, opacity: 0, animationFillMode: 'forwards' }}
                   >
                     {/* Top row */}
                     <div className="flex justify-between items-start mb-2">

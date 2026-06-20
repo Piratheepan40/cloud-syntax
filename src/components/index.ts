@@ -9,4 +9,4 @@ export { CategoryManagementModal } from './CategoryManagementModal';
 export { StockHistoryModal } from './StockHistoryModal';
 export { Sidebar } from './Sidebar';
 export { StockAdjustmentModal } from './StockAdjustmentModal';
-
+export { WelcomeScreen } from './WelcomeScreen';

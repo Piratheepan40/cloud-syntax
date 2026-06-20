@@ -83,7 +83,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {statsList.map((stat, i) => (
           <div
             key={i}
-            className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${stat.gradient} p-5 text-white shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between h-32`}
+            className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${stat.gradient} p-5 text-white shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 flex flex-col justify-between h-32 animate-fade-in-up`}
+            style={{ animationDelay: `${i * 150}ms`, opacity: 0, animationFillMode: 'forwards' }}
           >
             <div className="absolute right-[-10px] top-[-10px] text-8xl opacity-10 select-none pointer-events-none">
               {stat.icon}
@@ -114,7 +115,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {categories.length > 0 ? (
-                categories.map((cat) => {
+                categories.map((cat, index) => {
                   const categoryProducts = products.filter((p) => p.categoryId === cat.id);
                   const categoryValue = categoryProducts.reduce((sum, p) => sum + p.price * p.stock, 0);
                   const categoryStock = categoryProducts.reduce((sum, p) => sum + p.stock, 0);
@@ -122,7 +123,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   return (
                     <div
                       key={cat.id}
-                      className="border-l-4 border-indigo-500 bg-slate-50 dark:bg-slate-900/30 p-4 rounded-r-lg border border-slate-150 dark:border-slate-700/50 hover:shadow-md transition-shadow"
+                      className="border-l-4 border-indigo-500 bg-slate-50 dark:bg-slate-900/30 p-4 rounded-r-lg border border-slate-150 dark:border-slate-700/50 hover:shadow-md transition-all duration-300 transform hover:-translate-x-1 hover:border-l-8 animate-fade-in-up"
+                      style={{ animationDelay: `${index * 100}ms`, opacity: 0, animationFillMode: 'forwards' }}
                     >
                       <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm mb-2">
                         {cat.name}
@@ -298,12 +300,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="p-5">
             {recentHistory.length > 0 ? (
               <div className="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-200 dark:before:bg-slate-700">
-                {recentHistory.map((log) => {
+                {recentHistory.map((log, index) => {
                   const product = products.find((p) => p.id === log.productId);
                   const isIncrease = log.action === 'INCREASE';
                   
                   return (
-                    <div key={log.id} className="relative pl-7 text-xs flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 group">
+                    <div 
+                      key={log.id} 
+                      className="relative pl-7 text-xs flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 group animate-fade-in-up hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors"
+                      style={{ animationDelay: `${index * 100}ms`, opacity: 0, animationFillMode: 'forwards' }}
+                    >
                       {/* Dot icon */}
                       <span className="absolute left-[3px] top-1 w-4 h-4 rounded-full border-2 border-white dark:border-slate-800 bg-white dark:bg-slate-800 flex items-center justify-center text-[10px] shadow-sm transform group-hover:scale-110 transition-transform">
                         {isIncrease ? '📈' : '📉'}

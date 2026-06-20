@@ -64,18 +64,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Navigation
               </h3>
               <div className="space-y-1">
-                {menuItems.map((item) => (
+                {menuItems.map((item, index) => (
                   <button
                     key={item.id}
                     onClick={() => {
                       onTabChange(item.tab);
                       isMobile && onSidebarClose();
                     }}
-                    className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-3 ${
+                    className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-3 animate-fade-in-up hover:translate-x-1 ${
                       activeTab === item.tab
                         ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm'
                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                     }`}
+                    style={{ animationDelay: `${index * 100}ms`, opacity: 0, animationFillMode: 'forwards' }}
                   >
                     <span className="text-lg">{item.icon}</span>
                     <span>{item.label}</span>
@@ -90,14 +91,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Tools & Settings
               </h3>
               <div className="space-y-1">
-                {actionItems.map((item) => (
+                {actionItems.map((item, index) => (
                   <button
                     key={item.id}
                     onClick={() => {
                       item.action();
                       isMobile && onSidebarClose();
                     }}
-                    className="w-full text-left px-4 py-2.5 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-200 flex items-center justify-between"
+                    className="w-full text-left px-4 py-2.5 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-200 flex items-center justify-between animate-fade-in-up hover:translate-x-1"
+                    style={{ animationDelay: `${(index + menuItems.length) * 100}ms`, opacity: 0, animationFillMode: 'forwards' }}
                   >
                     <span className="flex items-center gap-3">
                       <span className="text-lg">{item.icon}</span>
